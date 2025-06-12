@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Helper functions
 print_help() {
-    echo -e "${BLUE}Laravel Docker Development Helper${NC}"
+    echo -e "${BLUE}Laravel Docker Development Helper (HTTPS Enabled)${NC}"
     echo ""
     echo "Usage: $0 [command]"
     echo ""
@@ -86,6 +86,7 @@ load_config() {
     PROJECT_NAME=${PROJECT_NAME:-"laravel_app"}
     APP_NAME=${APP_NAME:-"Laravel App"}
     APP_PORT=${APP_PORT:-8080}
+    APP_HTTPS_PORT=${APP_HTTPS_PORT:-8443}
     MYSQL_PORT=${MYSQL_PORT:-3306}
     REDIS_PORT=${REDIS_PORT:-6379}
     PHPMYADMIN_PORT=${PHPMYADMIN_PORT:-8081}
@@ -121,8 +122,11 @@ configure_project() {
         read -p "App name [Laravel App]: " APP_NAME
         APP_NAME=${APP_NAME:-"Laravel App"}
         
-        read -p "App port [8080]: " APP_PORT
+        read -p "App HTTP port [8080]: " APP_PORT
         APP_PORT=${APP_PORT:-8080}
+        
+        read -p "App HTTPS port [8443]: " APP_HTTPS_PORT
+        APP_HTTPS_PORT=${APP_HTTPS_PORT:-8443}
         
         read -p "MySQL port [3306]: " MYSQL_PORT
         MYSQL_PORT=${MYSQL_PORT:-3306}
@@ -150,6 +154,7 @@ APP_NAME="$APP_NAME"
 
 # Port Configuration
 APP_PORT=$APP_PORT
+APP_HTTPS_PORT=$APP_HTTPS_PORT
 MYSQL_PORT=$MYSQL_PORT
 REDIS_PORT=6379
 PHPMYADMIN_PORT=$PHPMYADMIN_PORT
@@ -163,7 +168,7 @@ DB_PASSWORD=$DB_PASSWORD
 DB_ROOT_PASSWORD=root_password
 
 # Application Configuration
-APP_URL=http://localhost:$APP_PORT
+APP_URL=https://localhost:$APP_HTTPS_PORT
 APP_ENV=local
 APP_DEBUG=true
 EOF
@@ -198,6 +203,7 @@ generate_files() {
         sed -i.bak "s/{{PROJECT_NAME}}/$PROJECT_NAME/g" "$output_file"
         sed -i.bak "s/{{APP_NAME}}/$APP_NAME/g" "$output_file"
         sed -i.bak "s/{{APP_PORT}}/$APP_PORT/g" "$output_file"
+        sed -i.bak "s/{{APP_HTTPS_PORT}}/$APP_HTTPS_PORT/g" "$output_file"
         sed -i.bak "s/{{MYSQL_PORT}}/$MYSQL_PORT/g" "$output_file"
         sed -i.bak "s/{{REDIS_PORT}}/$REDIS_PORT/g" "$output_file"
         sed -i.bak "s/{{PHPMYADMIN_PORT}}/$PHPMYADMIN_PORT/g" "$output_file"
@@ -272,7 +278,8 @@ case "$1" in
         sleep 10
         load_config
         print_status "Setup completed!"
-        print_status "Application URL: $APP_URL"
+        print_status "Application HTTPS URL: $APP_URL"
+        print_status "Application HTTP URL: http://localhost:$APP_PORT (redirects to HTTPS)"
         print_status "PHPMyAdmin URL: http://localhost:$PHPMYADMIN_PORT"
         print_status "Mailhog URL: http://localhost:$MAILHOG_WEB_PORT"
         ;;

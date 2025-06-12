@@ -39,7 +39,8 @@ A reusable Docker development environment template for Laravel applications, opt
    - Run database migrations
 
 4. **Access your application:**
-   - **Laravel App**: http://localhost:8080 (or your configured port)
+   - **Laravel App (HTTPS)**: https://localhost:8443 (or your configured HTTPS port)
+   - **Laravel App (HTTP)**: http://localhost:8080 (redirects to HTTPS)
    - **PHPMyAdmin**: http://localhost:8081 (or your configured port)
    - **Mailhog**: http://localhost:8025 (or your configured port)
 
@@ -49,8 +50,8 @@ The template uses a configuration file `docker/.env.template` where you can cust
 
 - **Project name** (affects container names and network)
 - **Database name, username, and password**
-- **Port mappings** (avoid conflicts with other projects)
-- **Application URL**
+- **Port mappings** (HTTP and HTTPS ports to avoid conflicts with other projects)
+- **Application URL** (automatically configured for HTTPS)
 
 ## 🛠️ Development Workflow
 
@@ -95,12 +96,13 @@ The template uses a configuration file `docker/.env.template` where you can cust
 
 This Docker environment includes:
 
-- **Laravel App** (PHP 8.2 + Apache) - Main application container
+- **Laravel App** (PHP 8.2 + Apache with SSL/HTTPS) - Main application container
 - **MySQL 8.0** - Database with persistent storage
 - **Redis 7** - Caching and session storage
 - **Mailhog** - Email testing tool
 - **PHPMyAdmin** - Database management interface
 - **Xdebug** - Pre-configured for VS Code debugging
+- **Self-signed SSL certificates** - Automatic HTTPS setup for development
 
 ## 📂 Template Structure
 
@@ -135,21 +137,47 @@ You can run multiple Laravel projects simultaneously by:
 
 Example configurations for multiple projects:
 
-**Project A** (ports 8080, 8081, 8025):
+**Project A** (HTTP: 8080, HTTPS: 8443, PHPMyAdmin: 8081, Mailhog: 8025):
 ```env
 PROJECT_NAME=project_a
 APP_PORT=8080
+APP_HTTPS_PORT=8443
 PHPMYADMIN_PORT=8081
 MAILHOG_WEB_PORT=8025
 ```
 
-**Project B** (ports 8090, 8091, 8035):
+**Project B** (HTTP: 8090, HTTPS: 8453, PHPMyAdmin: 8091, Mailhog: 8035):
 ```env
 PROJECT_NAME=project_b
 APP_PORT=8090
+APP_HTTPS_PORT=8453
 PHPMYADMIN_PORT=8091
 MAILHOG_WEB_PORT=8035
 ```
+
+## 🔒 HTTPS/SSL Information
+
+### SSL Certificates
+
+The template automatically generates self-signed SSL certificates during the Docker build process. These certificates are valid for `localhost` and are suitable for development purposes.
+
+**Browser Warning**: Since these are self-signed certificates, your browser will show a security warning. You can safely proceed by:
+1. Clicking "Advanced" in your browser
+2. Selecting "Proceed to localhost (unsafe)" or similar option
+
+### Certificate Details
+
+- **Certificate Location**: `/etc/ssl/certs/apache-selfsigned.crt`
+- **Private Key Location**: `/etc/ssl/private/apache-selfsigned.key`
+- **Valid For**: `localhost`
+- **Validity**: 365 days from build date
+
+### Custom SSL Certificates
+
+To use your own SSL certificates:
+1. Replace the certificate files in the container
+2. Update the Apache configuration if needed
+3. Rebuild the container
 
 ## 🚨 Troubleshooting
 

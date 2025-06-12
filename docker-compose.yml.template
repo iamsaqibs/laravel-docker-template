@@ -12,6 +12,7 @@ services:
       - ./docker/dev/php.ini:/usr/local/etc/php/php.ini
     ports:
       - "{{APP_PORT}}:80"
+      - "{{APP_HTTPS_PORT}}:443"
     networks:
       - {{PROJECT_NAME}}-network
     depends_on:

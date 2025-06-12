@@ -59,7 +59,7 @@ RUN pecl install redis xdebug \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Configure Apache
-RUN a2enmod rewrite headers expires
+RUN a2enmod rewrite headers expires ssl
 COPY docker/dev/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy custom PHP configuration
@@ -85,12 +85,19 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 # Create storage link
 RUN php artisan storage:link
 
-# Expose port
-EXPOSE 80
+# Expose ports
+EXPOSE 80 443
 
 # Create entrypoint script
 COPY docker/dev/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Generate self-signed SSL certificates for development
+RUN mkdir -p /etc/ssl/private /etc/ssl/certs \
+    && openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/apache-selfsigned.key \
+    -out /etc/ssl/certs/apache-selfsigned.crt \
+    -subj "/C=US/ST=Development/L=Local/O=Laravel Docker/OU=Development/CN=localhost"
 
 # Start services
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
