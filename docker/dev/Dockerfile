@@ -82,9 +82,6 @@ RUN chown -R www-data:www-data /var/www/html \
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install Node.js dependencies and build assets
-RUN npm install && npm run build
-
 # Create storage link
 RUN php artisan storage:link
 
