@@ -38,6 +38,7 @@ print_help() {
     echo "  composer  - Run composer commands"
     echo "  npm       - Run npm commands"
     echo "  test      - Run PHPUnit tests"
+    echo "  ssl-debug - Debug SSL/HTTPS configuration"
     echo "  fresh     - Fresh install (rebuild and reset database)"
     echo "  status    - Show container status"
     echo "  cleanup   - Remove containers, volumes, and images"
@@ -368,6 +369,15 @@ case "$1" in
         check_docker
         print_status "Running PHPUnit tests..."
         docker compose -f $COMPOSE_FILE exec app php artisan test
+        ;;
+    ssl-debug)
+        check_docker
+        print_status "Running SSL diagnostics..."
+        if [ -f "debug-ssl.sh" ]; then
+            ./debug-ssl.sh
+        else
+            print_error "SSL debug script not found. Please ensure debug-ssl.sh exists in the project root."
+        fi
         ;;
     fresh)
         check_docker
